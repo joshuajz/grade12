@@ -1,0 +1,45 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <block type="import_microbit" id=".MO8ONalFBn0l2bf5|?t" x="410" y="198">
+    <next>
+      <block type="while_true" id="q%5w-=af,l[y;ZZJb143">
+        <statement name="DO">
+          <block type="ifinline" id="kk^JhW4=fP7:zM3X{|;(">
+            <value name="iftext">
+              <block type="buttonispressed" id="LR}ti,5Hpv+!hpO6?H,B">
+                <field name="NAME">a</field>
+              </block>
+            </value>
+            <statement name="ifstate">
+              <block type="image" id="up*7d[VIs{hAQLK`%dNv">
+                <field name="image">Image.SKULL</field>
+              </block>
+            </statement>
+            <next>
+              <block type="elifinline" id="*w:fUb`z)NtXrvU=e?p}">
+                <value name="iftext">
+                  <block type="buttonwaspressed" id="{Hcm9/`N95p9XSkKo4ln">
+                    <field name="NAME">b</field>
+                  </block>
+                </value>
+                <statement name="ifstate">
+                  <block type="image" id="vO~N?;Lbkcgd*#XjP0|t">
+                    <field name="image">"y"</field>
+                  </block>
+                </statement>
+                <next>
+                  <block type="else" id="Jta7iBmPTml/=byW`T.4">
+                    <statement name="DO">
+                      <block type="image" id="tv:;F`,,U+R,@pf`%2/5">
+                        <field name="image">"no"</field>
+                      </block>
+                    </statement>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+</xml>
