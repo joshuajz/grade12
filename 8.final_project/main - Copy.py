@@ -6,7 +6,6 @@ import ast
 import tkinter as tk
 import tkinter.font as tkfont
 from tkinter import messagebox, Toplevel
-from shutil import rmtree
 
 # Setup filesystem
 # Creating a accounts folder
@@ -27,7 +26,7 @@ class User:
             if len(account_dir) == 0:
                 number = 0
             else:
-                number = int(account_dir[-1]) + 1
+                number = int(account_dir[-1])
 
         # The account number (corrosponding to the folder in accounts/)
         self.account_number = number
@@ -39,12 +38,18 @@ class User:
             self.email = email
             self.password = password
 
+            self.register_user()
+
+            self.store_data(credentials=True, cookies=True)
         else:
             # Pulls all of the information from the credentials.txt and cookies.txt
             self.pull_info()
 
             # Login
             self.login()
+
+            # TEMP: BUYING
+            self.buy_free_game()
 
     def create_driver(self):
         # Start the webdriver
@@ -84,6 +89,46 @@ class User:
 
             # Convert the textfile list of dictionaries to actual python variables
             self.cookies = ast.literal_eval(contents)
+
+    def register_user(self):
+        # Login page
+        self.driver.get("https://www.epicgames.com/id/login/epic")
+        time.sleep(1.5)
+
+        # Enter Credentials
+        self.driver.find_element_by_name("email").send_keys(self.email)
+        self.driver.find_element_by_name("password").send_keys(self.password)
+        time.sleep(5)
+
+        # Click login
+        self.driver.find_element_by_id("sign-in").click()
+
+        # Verify with captcha
+        print("Sadly we cannot complete a captcha for you.")
+        print(
+            "Please complete the captcha, and then press 'enter' in the terminal window."
+        )
+
+        while True:
+            inp = input()
+            # If their input was ENTER
+            if inp == "":
+                # Check to see if they've been redirected to the correct page
+                time.sleep(2)
+                current_url = self.driver.current_url
+                if current_url == "https://www.epicgames.com/account/personal":
+                    print("\nThank you for verifying captcha.")
+                    break
+
+        self.cookies = self.driver.get_cookies()
+
+        time.sleep(4)
+
+        # Pulling the user's username:
+        username_element = self.driver.find_element_by_name("displayName")
+        self.username = username_element.get_attribute("value")
+
+        print("Register Finished.")
 
     def login(self):
         # Go to the epic games website
@@ -172,13 +217,12 @@ def main():
     title.pack()
 
     accounts = pull_accounts()
-    print(accounts)
     if not accounts:
         print("No User Accounts.")
         no_accounts = tk.Label(text="There are currently no accounts. Add an account:")
         no_accounts.pack()
 
-        create_account_button = tk.Button(text="Add Account", command=create_account)
+        create_account_button = tk.Button(text="Create Account", command=create_account)
         create_account_button.pack()
 
     else:
@@ -223,22 +267,12 @@ def main():
                 icon="warning",
             )
             if msgbox == "yes":
-                for account in accounts:
-                    if dropdown_value.get() == account["user"]:
-                        correct_account = account["number"]
-                        break
-
-                rmtree(f"{os.getcwd()}\\accounts\\{correct_account}")
-                print("Removed a User.")
-                window.destroy()
-                main()
+                print("REMOVING ACCOUNT")
+            else:
+                print("BACK")
 
         delete_account_button = tk.Button(text="Delete Account", command=delete_account)
         delete_account_button.pack()
-
-        # Create account button
-        create_account_button = tk.Button(text="Add Account", command=create_account)
-        create_account_button.pack()
 
     # Mainloop
     window.mainloop()
@@ -263,51 +297,11 @@ def create_account():
 
     def complete_captcha():
         messagebox.showinfo("Captcha", "Press okay when you've completed the captcha.")
+        print("clicked")
 
     def account_details():
-        new_user = User(
-            email=email_enter.get(), password=password_enter.get(), new_account=True
-        )
-        new_user.driver.get("https://www.epicgames.com/id/login/epic")
-        time.sleep(1.5)
-
-        # Enter Credentials
-        new_user.driver.find_element_by_name("email").send_keys(new_user.email)
-        new_user.driver.find_element_by_name("password").send_keys(new_user.password)
-        time.sleep(5)
-
-        # Click login
-        new_user.driver.find_element_by_id("sign-in").click()
-
-        complete_captcha()
-
-        # Check to see if they've been redirected to the correct page
-        time.sleep(1)
-        current_url = new_user.driver.current_url
-        if current_url == "https://www.epicgames.com/account/personal":
-            print("\nThank you for verifying captcha.")
-        else:
-            messagebox.showinfo("Invalid", "Invalid Credentials or Captcha. Restart.")
-            create_window.withdraw()
-            new_user.driver.close()
-            create_account()
-
-        new_user.cookies = new_user.driver.get_cookies()
-
-        time.sleep(4)
-
-        # Pulling the user's username:
-        username_element = new_user.driver.find_element_by_name("displayName")
-        new_user.username = username_element.get_attribute("value")
-
-        print("Register Finished.")
-
-        new_user.store_data(credentials=True, cookies=True)
-
-        new_user.driver.close()
-        create_window.withdraw()
-        window.destroy()
-        main()
+        print(email_enter.get())
+        print(password_enter.get())
 
     tk.Button(create_window, text="Submit", command=account_details).grid(row=3)
 
@@ -340,3 +334,4 @@ def pull_information(number: int):
 # Registering a user
 # x = User(new_account=True, email="cowanjzcmc1@gmail.com", password="1")
 # x = User(number=0)
+main()
